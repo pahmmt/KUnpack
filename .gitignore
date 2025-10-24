@@ -1,0 +1,56 @@
+## ============================================================================
+## KUnpack Project - Git Ignore Rules
+## ============================================================================
+
+# Build directories
+bin/
+obj/
+
+# IDE files
+.vs/
+.vscode/
+.idea/
+*.user
+*.sln.user
+*.DotSettings.user
+*.swp
+*.swo
+*~
+
+# Visual Studio cache
+*.suo
+*.cache
+*.docstates
+
+# NuGet
+packages/
+*.nupkg
+packages.lock.json
+
+# Rider
+.idea_modules/
+*.sln.iml
+
+# User-specific
+*.VC.db
+*.opendb
+
+# OS files
+.DS_Store
+Thumbs.db
+.directory
+
+# Backup files
+*.bak
+*.backup
+*.tmp
+
+# Test results
+TestResults/
+*.trx
+
+# Published files
+publish/
+
+# Local history
+.localhistory/
