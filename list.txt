@@ -1,0 +1,9 @@
+image\effect\fightskill\public\jiehun\ybtd_vn.spr
+image\effect\fightskill\public\jiehun\yjtx_vn.spr
+image\effect\fightskill\public\jiehun\zsgz_vn.spr
+image\effect\fightskill\public\jxlogo_vn.spr
+\image\effect\info\big\bindgold_vn.spr
+\image\effect\info\big\bindtael_vn.spr
+\image\effect\info\big\clear_vn.spr
+\image\effect\info\big\exp_vn.spr
+\image\effect\info\big\gatherpoint_vn.spr
