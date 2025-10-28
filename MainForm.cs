@@ -1131,46 +1131,190 @@ namespace KUnpack
             idToPathMap.Clear();
             
             string[] lines = File.ReadAllLines(listPath);
-            int loadedCount = 0;
-            int totalLines = 0;
-            
-            foreach (string line in lines)
+            if (lines.Length == 0)
             {
-                totalLines++;
-                string trimmedLine = line.Trim();
-                if (string.IsNullOrEmpty(trimmedLine))
+                LogMessage("List file is empty");
+                return;
+            }
+            
+            // Kiểm tra xem có phải định dạng chi tiết không
+            bool isDetailedFormat = false;
+            
+            // Kiểm tra header chi tiết: có dòng chứa "TotalFile:" hoặc header tab-separated "Index\tID\tTime\tFileName..."
+            for (int i = 0; i < Math.Min(10, lines.Length); i++)
+            {
+                string line = lines[i].Trim();
+                if (string.IsNullOrEmpty(line))
                     continue;
-                
-                // Chuẩn hoá đường dẫn: đổi '/' thành '\\', loại bỏ '\\\\' lặp (logic inline từ NormalizePath)
-                string normalizedPath = trimmedLine.Replace('/', '\\');
-                while (normalizedPath.Contains("\\\\"))
-                    normalizedPath = normalizedPath.Replace("\\\\", "\\");
-                
-                // Thử cả 2 format: với và không có leading backslash
-                string pathWithoutSlash = normalizedPath.TrimStart('\\');
-                string pathWithSlash = normalizedPath.StartsWith("\\") 
-                    ? normalizedPath 
-                    : "\\" + normalizedPath;
-                
-                // Tính ID cho cả 2 format
-                uint idWithoutSlash = KFilePath.FileName2Id(pathWithoutSlash);
-                uint idWithSlash = KFilePath.FileName2Id(pathWithSlash);
-                
-                // Lưu cả 2 vào dictionary
-                if (!idToPathMap.ContainsKey(idWithoutSlash))
+                    
+                // Kiểm tra có header metadata không (TotalFile:, PakTime:, etc.)
+                if (line.Contains("TotalFile:") || line.Contains("PakTime:") || line.Contains("PakTimeSave:"))
                 {
-                    idToPathMap[idWithoutSlash] = pathWithoutSlash;
-                    loadedCount++;
+                    isDetailedFormat = true;
                 }
                 
-                if (idWithSlash != idWithoutSlash && !idToPathMap.ContainsKey(idWithSlash))
+                // Kiểm tra có header table không (Index\tID\tTime\tFileName...)
+                if (line.Contains("\t") && (line.StartsWith("Index\t", StringComparison.OrdinalIgnoreCase) || 
+                    (line.StartsWith("Index", StringComparison.OrdinalIgnoreCase) && line.Contains("ID") && line.Contains("FileName"))))
                 {
-                    idToPathMap[idWithSlash] = pathWithSlash;
-                    loadedCount++;
+                    isDetailedFormat = true;
+                    break;
                 }
             }
             
-            LogMessage($"Read {totalLines} lines from list file");
+            int loadedCount = 0;
+            int totalLines = 0;
+            int headerLines = 0;
+            
+            if (isDetailedFormat)
+            {
+                LogMessage("Detected detailed list format (tab-separated)");
+                
+                // Bỏ qua các dòng header metadata (TotalFile:, PakTime:, etc.)
+                int lineIndex = 0;
+                while (lineIndex < lines.Length)
+                {
+                    string line = lines[lineIndex].Trim();
+                    if (string.IsNullOrEmpty(line))
+                    {
+                        lineIndex++;
+                        continue;
+                    }
+                    
+                    // Nếu gặp header table "Index\tID\tTime\tFileName...", dòng tiếp theo là dữ liệu
+                    if (line.Contains("\t") && (line.StartsWith("Index\t", StringComparison.OrdinalIgnoreCase) || 
+                        (line.StartsWith("Index", StringComparison.OrdinalIgnoreCase) && line.Contains("ID") && line.Contains("FileName"))))
+                    {
+                        headerLines = lineIndex + 1;
+                        lineIndex++;
+                        break;
+                    }
+                    
+                    // Nếu là header metadata, bỏ qua
+                    if (line.Contains("TotalFile:") || line.Contains("PakTime:") || line.Contains("PakTimeSave:") || line.Contains("CRC:"))
+                    {
+                        headerLines++;
+                        lineIndex++;
+                        continue;
+                    }
+                    
+                    // Nếu không phải header, có thể đã đến dữ liệu
+                    if (line.Contains("\t") && !line.StartsWith("Index", StringComparison.OrdinalIgnoreCase))
+                    {
+                        headerLines = lineIndex;
+                        break;
+                    }
+                    
+                    lineIndex++;
+                }
+                
+                // Parse các dòng dữ liệu
+                for (int i = headerLines; i < lines.Length; i++)
+                {
+                    totalLines++;
+                    string trimmedLine = lines[i].Trim();
+                    if (string.IsNullOrEmpty(trimmedLine))
+                        continue;
+                    
+                    // Split theo tab
+                    string[] parts = trimmedLine.Split('\t');
+                    if (parts.Length < 4) // Ít nhất cần Index, ID, Time, FileName
+                        continue;
+                    
+                    // parts[0] = Index
+                    // parts[1] = ID (hex string)
+                    // parts[2] = Time
+                    // parts[3] = FileName
+                    
+                    string idHexStr = parts[1].Trim();
+                    string fileName = parts[3].Trim();
+                    
+                    // Convert hex ID to uint
+                    if (!uint.TryParse(idHexStr, System.Globalization.NumberStyles.HexNumber, null, out uint id))
+                    {
+                        LogMessage($"Warning: Cannot parse ID '{idHexStr}' as hex at line {i + 1}");
+                        continue;
+                    }
+                    
+                    // Chuẩn hoá đường dẫn
+                    string normalizedPath = fileName.Replace('/', '\\');
+                    while (normalizedPath.Contains("\\\\"))
+                        normalizedPath = normalizedPath.Replace("\\\\", "\\");
+                    
+                    // Thử cả 2 format: với và không có leading backslash
+                    string pathWithoutSlash = normalizedPath.TrimStart('\\');
+                    string pathWithSlash = normalizedPath.StartsWith("\\") 
+                        ? normalizedPath 
+                        : "\\" + normalizedPath;
+                    
+                    // Lưu mapping với ID từ file (không cần tính lại)
+                    if (!idToPathMap.ContainsKey(id))
+                    {
+                        idToPathMap[id] = pathWithoutSlash;
+                        loadedCount++;
+                    }
+                    
+                    // Cũng thử tính ID từ path và lưu (để hỗ trợ cả 2 cách)
+                    uint idFromPathWithout = KFilePath.FileName2Id(pathWithoutSlash);
+                    if (idFromPathWithout != id && !idToPathMap.ContainsKey(idFromPathWithout))
+                    {
+                        idToPathMap[idFromPathWithout] = pathWithoutSlash;
+                        loadedCount++;
+                    }
+                    
+                    uint idFromPathWith = KFilePath.FileName2Id(pathWithSlash);
+                    if (idFromPathWith != id && idFromPathWith != idFromPathWithout && !idToPathMap.ContainsKey(idFromPathWith))
+                    {
+                        idToPathMap[idFromPathWith] = pathWithSlash;
+                        loadedCount++;
+                    }
+                }
+                
+                LogMessage($"Skipped {headerLines} header lines");
+            }
+            else
+            {
+                // Định dạng đơn giản: mỗi dòng là một đường dẫn
+                LogMessage("Detected simple list format (path list)");
+                
+                foreach (string line in lines)
+                {
+                    totalLines++;
+                    string trimmedLine = line.Trim();
+                    if (string.IsNullOrEmpty(trimmedLine))
+                        continue;
+                    
+                    // Chuẩn hoá đường dẫn: đổi '/' thành '\\', loại bỏ '\\\\' lặp (logic inline từ NormalizePath)
+                    string normalizedPath = trimmedLine.Replace('/', '\\');
+                    while (normalizedPath.Contains("\\\\"))
+                        normalizedPath = normalizedPath.Replace("\\\\", "\\");
+                    
+                    // Thử cả 2 format: với và không có leading backslash
+                    string pathWithoutSlash = normalizedPath.TrimStart('\\');
+                    string pathWithSlash = normalizedPath.StartsWith("\\") 
+                        ? normalizedPath 
+                        : "\\" + normalizedPath;
+                    
+                    // Tính ID cho cả 2 format
+                    uint idWithoutSlash = KFilePath.FileName2Id(pathWithoutSlash);
+                    uint idWithSlash = KFilePath.FileName2Id(pathWithSlash);
+                    
+                    // Lưu cả 2 vào dictionary
+                    if (!idToPathMap.ContainsKey(idWithoutSlash))
+                    {
+                        idToPathMap[idWithoutSlash] = pathWithoutSlash;
+                        loadedCount++;
+                    }
+                    
+                    if (idWithSlash != idWithoutSlash && !idToPathMap.ContainsKey(idWithSlash))
+                    {
+                        idToPathMap[idWithSlash] = pathWithSlash;
+                        loadedCount++;
+                    }
+                }
+            }
+            
+            LogMessage($"Read {totalLines} data lines from list file");
             
             LogMessage($"Created {loadedCount} ID mappings (including with/without leading slash variants)");
             LogMessage($"Unique paths in dictionary: {idToPathMap.Count}");
