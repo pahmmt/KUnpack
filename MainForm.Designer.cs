@@ -34,6 +34,7 @@
             openToolStripMenuItem = new ToolStripMenuItem();
             setOutputToolStripMenuItem = new ToolStripMenuItem();
             loadListToolStripMenuItem = new ToolStripMenuItem();
+            loadPathToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator1 = new ToolStripSeparator();
             exitToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator2 = new ToolStripSeparator();
@@ -109,7 +110,7 @@
             // 
             // fileToolStripMenuItem
             // 
-            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { openToolStripMenuItem, setOutputToolStripMenuItem, loadListToolStripMenuItem, toolStripSeparator1, exitToolStripMenuItem, toolStripSeparator2, pAKnoneToolStripMenuItem, outputnoneToolStripMenuItem, listnoneToolStripMenuItem });
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { openToolStripMenuItem, setOutputToolStripMenuItem, loadListToolStripMenuItem, loadPathToolStripMenuItem, toolStripSeparator1, exitToolStripMenuItem, toolStripSeparator2, pAKnoneToolStripMenuItem, outputnoneToolStripMenuItem, listnoneToolStripMenuItem });
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             fileToolStripMenuItem.Size = new Size(37, 20);
             fileToolStripMenuItem.Text = "File";
@@ -134,6 +135,13 @@
             loadListToolStripMenuItem.Size = new Size(153, 22);
             loadListToolStripMenuItem.Text = "Load List";
             loadListToolStripMenuItem.Click += LoadListToolStripMenuItem_Click;
+            // 
+            // loadPathToolStripMenuItem
+            // 
+            loadPathToolStripMenuItem.Name = "loadPathToolStripMenuItem";
+            loadPathToolStripMenuItem.Size = new Size(153, 22);
+            loadPathToolStripMenuItem.Text = "Tải đường dẫn";
+            loadPathToolStripMenuItem.Click += LoadPathToolStripMenuItem_Click;
             // 
             // toolStripSeparator1
             // 
@@ -547,6 +555,7 @@
         private ToolStripMenuItem openToolStripMenuItem;
         private ToolStripMenuItem setOutputToolStripMenuItem;
         private ToolStripMenuItem loadListToolStripMenuItem;
+        private ToolStripMenuItem loadPathToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator1;
         private ToolStripMenuItem exitToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator2;

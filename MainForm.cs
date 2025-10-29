@@ -55,6 +55,9 @@ namespace KUnpack
             UIHelper.AdjustListViewColumns(listViewFiles);
             UIHelper.AdjustListViewColumns(listViewInfo);
             
+            // Load dictionary files từ thư mục data
+            LoadDictionaryFiles();
+            
             // Cập nhật trạng thái menu
             UpdateMenuState();
         }
@@ -183,14 +186,14 @@ namespace KUnpack
                         if (idToPathMap.ContainsKey(indexInfo.uId))
                             mappedFiles++;
                     }
-                    LogMessage($"Files with path mapping: {mappedFiles}/{total} ({(double)mappedFiles / total * 100:F1}%)");
+                    LogMessage($"File có ánh xạ đường dẫn: {mappedFiles}/{total} ({(double)mappedFiles / total * 100:F1}%)");
                 }
                 else
                 {
-                    LogMessage("No path mappings loaded. Use 'File → Load List' to load path mappings.");
+                    LogMessage("Chưa có ánh xạ đường dẫn nào được tải. Sử dụng 'File → Load List' để tải ánh xạ đường dẫn.");
                 }
 
-                toolStripStatusLabel1.Text = $"Loaded {total} files from {Path.GetFileName(filePath)}";
+                toolStripStatusLabel1.Text = $"Đã tải {total} file từ {Path.GetFileName(filePath)}";
 
                 // Auto-resize columns
                 UIHelper.AdjustListViewColumns(listViewFiles);
@@ -201,11 +204,11 @@ namespace KUnpack
             }
             catch (SecurityException ex)
             {
-                MessageBox.Show($"Security error.\n\nError message: {ex.Message}\n\nDetails:\n\n{ex.StackTrace}");
+                MessageBox.Show($"Lỗi bảo mật.\n\nThông báo lỗi: {ex.Message}\n\nChi tiết:\n\n{ex.StackTrace}");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error opening PAK file.\n\nError message: {ex.Message}\n\nDetails:\n\n{ex.StackTrace}");
+                MessageBox.Show($"Lỗi khi mở file PAK.\n\nThông báo lỗi: {ex.Message}\n\nChi tiết:\n\n{ex.StackTrace}");
             }
         }
 
@@ -220,8 +223,8 @@ namespace KUnpack
                     // Validate write permissions
                     if (!ValidateFolderWritePermission(selectedFolder))
                     {
-                        MessageBox.Show($"Permission denied.\n\nYou do not have write permission to:\n{selectedFolder}", 
-                            "Permission Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"Bị từ chối quyền truy cập.\n\nBạn không có quyền ghi vào:\n{selectedFolder}", 
+                            "Lỗi quyền truy cập", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
 
@@ -285,7 +288,7 @@ namespace KUnpack
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error loading list file.\n\nError message: {ex.Message}\n\nDetails:\n\n{ex.StackTrace}");
+                    MessageBox.Show($"Lỗi khi tải file danh sách.\n\nThông báo lỗi: {ex.Message}\n\nChi tiết:\n\n{ex.StackTrace}");
                 }
             }
         }
@@ -326,13 +329,13 @@ namespace KUnpack
             
             if (isPaused)
             {
-                pauseResumeToolStripMenuItem.Text = "Resume";
-                LogMessage("Extraction paused");
+                pauseResumeToolStripMenuItem.Text = "Tiếp tục";
+                LogMessage("Đã tạm dừng trích xuất");
             }
             else
             {
-                pauseResumeToolStripMenuItem.Text = "Pause";
-                LogMessage("Extraction resumed");
+                pauseResumeToolStripMenuItem.Text = "Tạm dừng";
+                LogMessage("Đã tiếp tục trích xuất");
             }
         }
 
@@ -343,7 +346,7 @@ namespace KUnpack
 
             cancelRequested = true;
             isPaused = false; // Bỏ tạm dừng nếu đang tạm dừng
-            LogMessage("Cancellation requested...");
+            LogMessage("Đã yêu cầu hủy...");
         }
         #endregion
 
@@ -442,7 +445,7 @@ namespace KUnpack
                 }
                 catch (Exception ex)
                 {
-                    LogMessage($"Error reading file data: {ex.Message}");
+                    LogMessage($"Lỗi khi đọc dữ liệu file: {ex.Message}");
                 }
             }
 
@@ -635,21 +638,21 @@ namespace KUnpack
                 // Run extraction on background thread to avoid UI freeze
                 await Task.Run(() => PerformExtractionBackground(indices, ref successCount, ref failCount));
 
-                LogMessage($"Extraction complete: {successCount} succeeded, {failCount} failed");
+                LogMessage($"Hoàn tất trích xuất: {successCount} thành công, {failCount} thất bại");
                 if (!cancelRequested)
                 {
-                    MessageBox.Show($"Extracted {successCount} file(s) to:\n{outputFolder}", "Extract Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($"Đã trích xuất {successCount} file đến:\n{outputFolder}", "Hoàn tất trích xuất", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error extracting files:\n{ex.Message}", "Extract Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                LogMessage($"Extraction error: {ex.Message}");
+                MessageBox.Show($"Lỗi khi trích xuất file:\n{ex.Message}", "Lỗi trích xuất", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LogMessage($"Lỗi trích xuất: {ex.Message}");
             }
             finally
             {
                 SetExtractionUI(false, false);
-                toolStripStatusLabel1.Text = $"Loaded {fileIndexList.Count} files from {Path.GetFileName(currentPackPath)}";
+                toolStripStatusLabel1.Text = $"Đã tải {fileIndexList.Count} file từ {Path.GetFileName(currentPackPath)}";
             }
         }
 
@@ -668,7 +671,7 @@ namespace KUnpack
 
                 if (cancelRequested)
                 {
-                    LogMessage("Extraction cancelled by user");
+                    LogMessage("Đã hủy trích xuất bởi người dùng");
                     break;
                 }
 
@@ -680,7 +683,7 @@ namespace KUnpack
                 else
                 {
                     failCount++;
-                    LogMessage($"Failed to extract file at index {index}");
+                    LogMessage($"Không thể trích xuất file ở chỉ mục {index}");
                 }
 
                 int processedCount = successCount + failCount;
@@ -689,7 +692,7 @@ namespace KUnpack
                 this.Invoke(() =>
                 {
                     toolStripProgressBar1.Value = Math.Min(processedCount, toolStripProgressBar1.Maximum);
-                    toolStripStatusLabel1.Text = $"Extracting... {processedCount}/{indices.Count}";
+                    toolStripStatusLabel1.Text = $"Đang trích xuất... {processedCount}/{indices.Count}";
                 });
             }
         }
@@ -801,7 +804,7 @@ namespace KUnpack
             }
             catch (Exception ex)
             {
-                richTextBoxTextPreview.Text = $"Error decoding text: {ex.Message}";
+                richTextBoxTextPreview.Text = $"Lỗi khi giải mã văn bản: {ex.Message}";
             }
         }
 
@@ -847,7 +850,7 @@ namespace KUnpack
             {
                 spriteHelper.CleanupSprite();
                 ImagePreviewHelper.ClearPictureBox(pictureBox1);
-                LogMessage($"Error loading image: {ex.Message}");
+                LogMessage($"Lỗi khi tải ảnh: {ex.Message}");
             }
         }
 
@@ -857,7 +860,7 @@ namespace KUnpack
             {
                 spriteHelper.CleanupSprite();
                 ImagePreviewHelper.ClearPictureBox(pictureBox1);
-                LogMessage("Failed to load sprite file");
+                LogMessage("Không thể tải file sprite");
                 return;
             }
 
@@ -940,7 +943,7 @@ namespace KUnpack
                 var cursorImage = ImagePreviewHelper.LoadCursorAsBitmap(data, out ushort hotspotX, out ushort hotspotY);
                 if (cursorImage == null)
                 {
-                    LogMessage("Invalid cursor file: too small");
+                    LogMessage("File con trỏ không hợp lệ: quá nhỏ");
                     return;
                 }
 
@@ -963,7 +966,7 @@ namespace KUnpack
             }
             catch (Exception ex)
             {
-                LogMessage($"Error loading cursor: {ex.Message}");
+                LogMessage($"Lỗi khi tải con trỏ: {ex.Message}");
                 // Fallback: thử chuyển con trỏ sang icon và hiển thị (logic inline từ TryLoadCursorAsFallback)
                 try
                 {
@@ -982,12 +985,12 @@ namespace KUnpack
                         var fitted = GetFittedBitmapOrOriginal(originalImageForPreview);
                         pictureBox1.Image = fitted;
                         pictureBox1.SizeMode = PictureBoxSizeMode.CenterImage; // căn giữa icon
-                        LogMessage("Cursor loaded as icon (fallback)");
+                        LogMessage("Con trỏ được tải dưới dạng icon (phương án dự phòng)");
                     }
                 }
                 catch (Exception ex2)
                 {
-                    LogMessage($"Fallback also failed: {ex2.Message}");
+                    LogMessage($"Phương án dự phòng cũng thất bại: {ex2.Message}");
                 }
             }
         }
@@ -1133,7 +1136,7 @@ namespace KUnpack
             string[] lines = File.ReadAllLines(listPath);
             if (lines.Length == 0)
             {
-                LogMessage("List file is empty");
+                    LogMessage("File danh sách trống");
                 return;
             }
             
@@ -1168,7 +1171,7 @@ namespace KUnpack
             
             if (isDetailedFormat)
             {
-                LogMessage("Detected detailed list format (tab-separated)");
+                LogMessage("Đã phát hiện định dạng danh sách chi tiết (phân cách bằng tab)");
                 
                 // Bỏ qua các dòng header metadata (TotalFile:, PakTime:, etc.)
                 int lineIndex = 0;
@@ -1232,7 +1235,7 @@ namespace KUnpack
                     // Convert hex ID to uint
                     if (!uint.TryParse(idHexStr, System.Globalization.NumberStyles.HexNumber, null, out uint id))
                     {
-                        LogMessage($"Warning: Cannot parse ID '{idHexStr}' as hex at line {i + 1}");
+                        LogMessage($"Cảnh báo: Không thể phân tích ID '{idHexStr}' dưới dạng hex ở dòng {i + 1}");
                         continue;
                     }
                     
@@ -1270,12 +1273,12 @@ namespace KUnpack
                     }
                 }
                 
-                LogMessage($"Skipped {headerLines} header lines");
+                LogMessage($"Đã bỏ qua {headerLines} dòng tiêu đề");
             }
             else
             {
                 // Định dạng đơn giản: mỗi dòng là một đường dẫn
-                LogMessage("Detected simple list format (path list)");
+                LogMessage("Đã phát hiện định dạng danh sách đơn giản (danh sách đường dẫn)");
                 
                 foreach (string line in lines)
                 {
@@ -1314,15 +1317,15 @@ namespace KUnpack
                 }
             }
             
-            LogMessage($"Read {totalLines} data lines from list file");
+            LogMessage($"Đã đọc {totalLines} dòng dữ liệu từ file danh sách");
             
-            LogMessage($"Created {loadedCount} ID mappings (including with/without leading slash variants)");
-            LogMessage($"Unique paths in dictionary: {idToPathMap.Count}");
+            LogMessage($"Đã tạo {loadedCount} ánh xạ ID (bao gồm các biến thể có/không có dấu gạch chéo đầu)");
+            LogMessage($"Đường dẫn duy nhất trong từ điển: {idToPathMap.Count}");
             
             // Debug: hiển thị 10 path đầu tiên và ID của chúng
             if (idToPathMap.Count > 0)
             {
-                LogMessage("Sample loaded paths and their IDs:");
+                LogMessage("Các đường dẫn đã tải và ID của chúng:");
                 int sampleCount = 0;
                 foreach (var kvp in idToPathMap)
                 {
@@ -1342,17 +1345,17 @@ namespace KUnpack
                         mappedFiles++;
                 }
                 
-                LogMessage($"Matched {mappedFiles}/{fileIndexList.Count} files in PAK ({(double)mappedFiles / fileIndexList.Count * 100:F1}%)");
+                LogMessage($"Đã khớp {mappedFiles}/{fileIndexList.Count} file trong PAK ({(double)mappedFiles / fileIndexList.Count * 100:F1}%)");
                 
                 if (mappedFiles < fileIndexList.Count)
                 {
-                    LogMessage($"Warning: {fileIndexList.Count - mappedFiles} files in PAK have no path mapping");
+                    LogMessage($"Cảnh báo: {fileIndexList.Count - mappedFiles} file trong PAK không có ánh xạ đường dẫn");
                 }
                 
                 // Debug: hiển thị 5 ID đầu tiên không match
                 if (mappedFiles < fileIndexList.Count)
                 {
-                    LogMessage("Sample unmapped IDs:");
+                    LogMessage("Các ID chưa được ánh xạ:");
                     int sampleCount = 0;
                     foreach (var indexInfo in fileIndexList)
                     {
@@ -1365,6 +1368,246 @@ namespace KUnpack
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Tải các file từ điển từ thư mục data
+        /// </summary>
+        private void LoadDictionaryFiles()
+        {
+            try
+            {
+                // Tìm thư mục data cùng cấp với executable
+                string exePath = Application.ExecutablePath;
+                string exeDir = Path.GetDirectoryName(exePath) ?? "";
+                string dataFolder = Path.Combine(exeDir, "data");
+
+                if (!Directory.Exists(dataFolder))
+                {
+                    LogMessage($"Không tìm thấy thư mục từ điển: {dataFolder}");
+                    return;
+                }
+
+                LogMessage($"Đang quét thư mục từ điển: {dataFolder}");
+                string[] txtFiles = Directory.GetFiles(dataFolder, "*.txt");
+                
+                if (txtFiles.Length == 0)
+                {
+                    LogMessage("Không tìm thấy file .txt trong thư mục data");
+                    return;
+                }
+
+                int loadedCount = 0;
+                int totalMappings = 0;
+                foreach (string txtFile in txtFiles)
+                {
+                    try
+                    {
+                        int mappingsLoaded = LoadDictionaryFile(txtFile);
+                        if (mappingsLoaded > 0)
+                        {
+                            loadedCount++;
+                            totalMappings += mappingsLoaded;
+                            LogMessage($"Đã tải từ điển: {Path.GetFileName(txtFile)} ({mappingsLoaded} ánh xạ)");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogMessage($"Lỗi khi tải từ điển {Path.GetFileName(txtFile)}: {ex.Message}");
+                    }
+                }
+
+                LogMessage($"Đã tải {loadedCount}/{txtFiles.Length} file từ điển với tổng {totalMappings} ánh xạ");
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"Lỗi khi tải các file từ điển: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Tải một file từ điển đơn lẻ
+        /// </summary>
+        private int LoadDictionaryFile(string filePath)
+        {
+            if (!File.Exists(filePath))
+                return 0;
+
+            string[] lines = File.ReadAllLines(filePath);
+            int loadedCount = 0;
+
+            foreach (string line in lines)
+            {
+                string trimmedLine = line.Trim();
+                if (string.IsNullOrEmpty(trimmedLine))
+                    continue;
+
+                // Nếu có tab, có thể là định dạng chi tiết
+                if (trimmedLine.Contains("\t"))
+                {
+                    string[] parts = trimmedLine.Split('\t');
+                    if (parts.Length >= 4)
+                    {
+                        // parts[0] = Index, parts[1] = ID (hex), parts[2] = Time, parts[3] = FileName
+                        string idHexStr = parts[1].Trim();
+                        string fileName = parts[3].Trim();
+
+                        if (uint.TryParse(idHexStr, System.Globalization.NumberStyles.HexNumber, null, out uint id))
+                        {
+                            string normalizedPath = fileName.Replace('/', '\\').TrimStart('\\');
+                            if (!idToPathMap.ContainsKey(id))
+                            {
+                                idToPathMap[id] = normalizedPath;
+                                loadedCount++;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // Định dạng đơn giản: mỗi dòng là một đường dẫn
+                    string normalizedPath = trimmedLine.Replace('/', '\\');
+                    if (normalizedPath.StartsWith("\\"))
+                        normalizedPath = normalizedPath.Substring(1);
+
+                    uint id = KFilePath.FileName2Id(normalizedPath);
+                    if (!idToPathMap.ContainsKey(id))
+                    {
+                        idToPathMap[id] = normalizedPath;
+                        loadedCount++;
+                    }
+                }
+            }
+
+            return loadedCount;
+        }
+
+        private void LoadPathToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Hiển thị hộp thoại nhập path
+            string? inputPath = ShowPathInputDialog();
+            
+            if (string.IsNullOrEmpty(inputPath))
+                return;
+
+            try
+            {
+                // Chuẩn hoá đường dẫn
+                string normalizedPath = inputPath.Replace('/', '\\');
+                
+                // Loại bỏ leading backslash
+                string pathWithoutSlash = normalizedPath.TrimStart('\\');
+                string pathWithSlash = normalizedPath.StartsWith("\\") 
+                    ? normalizedPath 
+                    : "\\" + pathWithoutSlash;
+
+                // Tính ID cho cả 2 format
+                uint idWithoutSlash = KFilePath.FileName2Id(pathWithoutSlash);
+                uint idWithSlash = KFilePath.FileName2Id(pathWithSlash);
+
+                // Lưu vào dictionary
+                bool added = false;
+                if (!idToPathMap.ContainsKey(idWithoutSlash))
+                {
+                    idToPathMap[idWithoutSlash] = pathWithoutSlash;
+                    added = true;
+                }
+
+                if (idWithSlash != idWithoutSlash && !idToPathMap.ContainsKey(idWithSlash))
+                {
+                    idToPathMap[idWithSlash] = pathWithSlash;
+                    added = true;
+                }
+
+                if (added)
+                {
+                    LogMessage($"Đã thêm ánh xạ đường dẫn thủ công: {inputPath}");
+                    
+                    // Cập nhật lại listview nếu đã có file
+                    if (fileIndexList.Count > 0)
+                    {
+                        ApplySortingIfAny();
+                        UpdateSortHeaderTexts();
+                        UIHelper.AdjustListViewColumns(listViewFiles);
+                        listViewFiles.Invalidate();
+                    }
+                }
+                else
+                {
+                    LogMessage($"Ánh xạ đường dẫn đã tồn tại cho: {inputPath}");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi thêm đường dẫn:\n{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Hiển thị hộp thoại nhập đường dẫn
+        /// </summary>
+        private string? ShowPathInputDialog()
+        {
+            Form inputForm = new Form()
+            {
+                Text = "Tải đường dẫn",
+                Width = 500,
+                Height = 150,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                MaximizeBox = false,
+                MinimizeBox = false,
+                StartPosition = FormStartPosition.CenterParent
+            };
+
+            Label label = new Label()
+            {
+                Text = "Nhập đường dẫn file:",
+                Left = 10,
+                Top = 15,
+                Width = 470,
+                Height = 20
+            };
+
+            TextBox textBox = new TextBox()
+            {
+                Left = 10,
+                Top = 40,
+                Width = 465,
+                Height = 20
+            };
+
+            Button okButton = new Button()
+            {
+                Text = "Đồng ý",
+                Left = 315,
+                Top = 75,
+                Width = 75,
+                DialogResult = DialogResult.OK
+            };
+
+            Button cancelButton = new Button()
+            {
+                Text = "Hủy",
+                Left = 400,
+                Top = 75,
+                Width = 75,
+                DialogResult = DialogResult.Cancel
+            };
+
+            inputForm.Controls.Add(label);
+            inputForm.Controls.Add(textBox);
+            inputForm.Controls.Add(okButton);
+            inputForm.Controls.Add(cancelButton);
+
+            inputForm.AcceptButton = okButton;
+            inputForm.CancelButton = cancelButton;
+
+            if (inputForm.ShowDialog() == DialogResult.OK)
+            {
+                return textBox.Text.Trim();
+            }
+
+            return null;
         }
         #endregion
 
