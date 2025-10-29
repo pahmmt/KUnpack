@@ -1454,10 +1454,31 @@ namespace KUnpack
 
                         if (uint.TryParse(idHexStr, System.Globalization.NumberStyles.HexNumber, null, out uint id))
                         {
-                            string normalizedPath = fileName.Replace('/', '\\').TrimStart('\\');
+                            // Chuẩn hoá đường dẫn và thêm đủ biến thể giống LoadFileList
+                            string normalizedPath = fileName.Replace('/', '\\');
+                            string pathWithoutSlash = normalizedPath.TrimStart('\\');
+                            string pathWithSlash = normalizedPath.StartsWith("\\") ? normalizedPath : "\\" + pathWithoutSlash;
+
+                            // 1) Dùng ID có sẵn trong file
                             if (!idToPathMap.ContainsKey(id))
                             {
-                                idToPathMap[id] = normalizedPath;
+                                idToPathMap[id] = pathWithoutSlash;
+                                loadedCount++;
+                            }
+
+                            // 2) Tính ID từ path (không có leading slash)
+                            uint idFromPathWithout = KFilePath.FileName2Id(pathWithoutSlash);
+                            if (idFromPathWithout != id && !idToPathMap.ContainsKey(idFromPathWithout))
+                            {
+                                idToPathMap[idFromPathWithout] = pathWithoutSlash;
+                                loadedCount++;
+                            }
+
+                            // 3) Tính ID từ path (có leading slash)
+                            uint idFromPathWith = KFilePath.FileName2Id(pathWithSlash);
+                            if (idFromPathWith != id && idFromPathWith != idFromPathWithout && !idToPathMap.ContainsKey(idFromPathWith))
+                            {
+                                idToPathMap[idFromPathWith] = pathWithSlash;
                                 loadedCount++;
                             }
                         }
@@ -1467,13 +1488,21 @@ namespace KUnpack
                 {
                     // Định dạng đơn giản: mỗi dòng là một đường dẫn
                     string normalizedPath = trimmedLine.Replace('/', '\\');
-                    if (normalizedPath.StartsWith("\\"))
-                        normalizedPath = normalizedPath.Substring(1);
+                    string pathWithoutSlash = normalizedPath.TrimStart('\\');
+                    string pathWithSlash = normalizedPath.StartsWith("\\") ? normalizedPath : "\\" + pathWithoutSlash;
 
-                    uint id = KFilePath.FileName2Id(normalizedPath);
-                    if (!idToPathMap.ContainsKey(id))
+                    // Tính ID cho cả 2 biến thể giống LoadFileList
+                    uint idWithoutSlash = KFilePath.FileName2Id(pathWithoutSlash);
+                    if (!idToPathMap.ContainsKey(idWithoutSlash))
                     {
-                        idToPathMap[id] = normalizedPath;
+                        idToPathMap[idWithoutSlash] = pathWithoutSlash;
+                        loadedCount++;
+                    }
+
+                    uint idWithSlash = KFilePath.FileName2Id(pathWithSlash);
+                    if (idWithSlash != idWithoutSlash && !idToPathMap.ContainsKey(idWithSlash))
+                    {
+                        idToPathMap[idWithSlash] = pathWithSlash;
                         loadedCount++;
                     }
                 }
