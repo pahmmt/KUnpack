@@ -119,21 +119,21 @@
             // 
             openToolStripMenuItem.Name = "openToolStripMenuItem";
             openToolStripMenuItem.Size = new Size(153, 22);
-            openToolStripMenuItem.Text = "Open";
+            openToolStripMenuItem.Text = "Mở PAK";
             openToolStripMenuItem.Click += OpenToolStripMenuItem_Click;
             // 
             // setOutputToolStripMenuItem
             // 
             setOutputToolStripMenuItem.Name = "setOutputToolStripMenuItem";
             setOutputToolStripMenuItem.Size = new Size(153, 22);
-            setOutputToolStripMenuItem.Text = "Set Output";
+            setOutputToolStripMenuItem.Text = "Đặt mục giải nén";
             setOutputToolStripMenuItem.Click += SetOutputToolStripMenuItem_Click;
             // 
             // loadListToolStripMenuItem
             // 
             loadListToolStripMenuItem.Name = "loadListToolStripMenuItem";
             loadListToolStripMenuItem.Size = new Size(153, 22);
-            loadListToolStripMenuItem.Text = "Load List";
+            loadListToolStripMenuItem.Text = "Tải danh sách";
             loadListToolStripMenuItem.Click += LoadListToolStripMenuItem_Click;
             // 
             // loadPathToolStripMenuItem
@@ -152,7 +152,7 @@
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             exitToolStripMenuItem.Size = new Size(153, 22);
-            exitToolStripMenuItem.Text = "Exit";
+            exitToolStripMenuItem.Text = "Thoát";
             exitToolStripMenuItem.Click += ExitToolStripMenuItem_Click;
             // 
             // toolStripSeparator2
@@ -165,41 +165,41 @@
             pAKnoneToolStripMenuItem.Enabled = false;
             pAKnoneToolStripMenuItem.Name = "pAKnoneToolStripMenuItem";
             pAKnoneToolStripMenuItem.Size = new Size(153, 22);
-            pAKnoneToolStripMenuItem.Text = "PAK: (none)";
+            pAKnoneToolStripMenuItem.Text = "Tệp PAK: (chưa chọn)";
             // 
             // outputnoneToolStripMenuItem
             // 
             outputnoneToolStripMenuItem.Enabled = false;
             outputnoneToolStripMenuItem.Name = "outputnoneToolStripMenuItem";
             outputnoneToolStripMenuItem.Size = new Size(153, 22);
-            outputnoneToolStripMenuItem.Text = "Output: (none)";
+            outputnoneToolStripMenuItem.Text = "Thư mục giải nén: (chưa chọn)";
             // 
             // listnoneToolStripMenuItem
             // 
             listnoneToolStripMenuItem.Enabled = false;
             listnoneToolStripMenuItem.Name = "listnoneToolStripMenuItem";
             listnoneToolStripMenuItem.Size = new Size(153, 22);
-            listnoneToolStripMenuItem.Text = "List: (none)";
+            listnoneToolStripMenuItem.Text = "Danh sách: (chưa chọn)";
             // 
             // extractToolStripMenuItem
             // 
             extractToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { extractSelectedToolStripMenuItem, extractAllToolStripMenuItem, toolStripSeparator3, pauseResumeToolStripMenuItem, cancelExtractionToolStripMenuItem });
             extractToolStripMenuItem.Name = "extractToolStripMenuItem";
             extractToolStripMenuItem.Size = new Size(54, 20);
-            extractToolStripMenuItem.Text = "Extract";
+            extractToolStripMenuItem.Text = "Giải nén";
             // 
             // extractSelectedToolStripMenuItem
             // 
             extractSelectedToolStripMenuItem.Name = "extractSelectedToolStripMenuItem";
             extractSelectedToolStripMenuItem.Size = new Size(156, 22);
-            extractSelectedToolStripMenuItem.Text = "Extract Selected";
+            extractSelectedToolStripMenuItem.Text = "Giải nén chọn";
             extractSelectedToolStripMenuItem.Click += ExtractSelectedToolStripMenuItem_Click;
             // 
             // extractAllToolStripMenuItem
             // 
             extractAllToolStripMenuItem.Name = "extractAllToolStripMenuItem";
             extractAllToolStripMenuItem.Size = new Size(156, 22);
-            extractAllToolStripMenuItem.Text = "Extract All";
+            extractAllToolStripMenuItem.Text = "Giải nén tất cả";
             extractAllToolStripMenuItem.Click += ExtractAllToolStripMenuItem_Click;
             // 
             // toolStripSeparator3
@@ -212,7 +212,7 @@
             pauseResumeToolStripMenuItem.Enabled = false;
             pauseResumeToolStripMenuItem.Name = "pauseResumeToolStripMenuItem";
             pauseResumeToolStripMenuItem.Size = new Size(156, 22);
-            pauseResumeToolStripMenuItem.Text = "Pause";
+            pauseResumeToolStripMenuItem.Text = "Tạm dừng";
             pauseResumeToolStripMenuItem.Click += PauseResumeToolStripMenuItem_Click;
             // 
             // cancelExtractionToolStripMenuItem
@@ -220,7 +220,7 @@
             cancelExtractionToolStripMenuItem.Enabled = false;
             cancelExtractionToolStripMenuItem.Name = "cancelExtractionToolStripMenuItem";
             cancelExtractionToolStripMenuItem.Size = new Size(156, 22);
-            cancelExtractionToolStripMenuItem.Text = "Cancel";
+            cancelExtractionToolStripMenuItem.Text = "Hủy";
             cancelExtractionToolStripMenuItem.Click += CancelExtractionToolStripMenuItem_Click;
             // 
             // statusStrip1
@@ -237,7 +237,7 @@
             toolStripStatusLabel1.Name = "toolStripStatusLabel1";
             toolStripStatusLabel1.Size = new Size(891, 17);
             toolStripStatusLabel1.Spring = true;
-            toolStripStatusLabel1.Text = "Ready";
+            toolStripStatusLabel1.Text = "Sẵn sàng";
             toolStripStatusLabel1.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // toolStripProgressBar1
@@ -299,19 +299,19 @@
             // 
             // listViewFilesHeader3
             // 
-            listViewFilesHeader3.Text = "Packed Size";
+            listViewFilesHeader3.Text = "Kích thước nén";
             // 
             // listViewFilesHeader4
             // 
-            listViewFilesHeader4.Text = "Original Size";
+            listViewFilesHeader4.Text = "Kích thước gốc";
             // 
             // listViewFilesHeader5
             // 
-            listViewFilesHeader5.Text = "Compression";
+            listViewFilesHeader5.Text = "Loại nén";
             // 
             // listViewFilesHeader6
             // 
-            listViewFilesHeader6.Text = "Path";
+            listViewFilesHeader6.Text = "Đường dẫn";
             // 
             // groupBox2
             // 
@@ -322,7 +322,7 @@
             groupBox2.Size = new Size(700, 437);
             groupBox2.TabIndex = 1;
             groupBox2.TabStop = false;
-            groupBox2.Text = "Preview";
+            groupBox2.Text = "Xem trước";
             // 
             // tabControl1
             // 
@@ -344,7 +344,7 @@
             tabPage1.Padding = new Padding(3);
             tabPage1.Size = new Size(686, 389);
             tabPage1.TabIndex = 0;
-            tabPage1.Text = "Image";
+            tabPage1.Text = "Ảnh";
             tabPage1.UseVisualStyleBackColor = true;
             // 
             // splitContainer1
@@ -387,7 +387,7 @@
             checkBox1.Name = "checkBox1";
             checkBox1.Size = new Size(87, 18);
             checkBox1.TabIndex = 0;
-            checkBox1.Text = "Play    FPS:";
+            checkBox1.Text = "Phát FPS:";
             checkBox1.UseVisualStyleBackColor = true;
             checkBox1.CheckedChanged += CheckBox1_CheckedChanged;
             // 
@@ -408,7 +408,7 @@
             tabPage2.Padding = new Padding(3);
             tabPage2.Size = new Size(686, 389);
             tabPage2.TabIndex = 1;
-            tabPage2.Text = "Text";
+            tabPage2.Text = "Văn bản";
             tabPage2.UseVisualStyleBackColor = true;
             // 
             // richTextBoxTextPreview
@@ -453,7 +453,7 @@
             groupBox3.Size = new Size(296, 185);
             groupBox3.TabIndex = 2;
             groupBox3.TabStop = false;
-            groupBox3.Text = "Info";
+            groupBox3.Text = "Thông tin";
             // 
             // listViewInfo
             // 
@@ -470,11 +470,11 @@
             // 
             // listViewInfoHeader1
             // 
-            listViewInfoHeader1.Text = "Name";
+            listViewInfoHeader1.Text = "Tên";
             // 
             // listViewInfoHeader2
             // 
-            listViewInfoHeader2.Text = "Value";
+            listViewInfoHeader2.Text = "Giá trị";
             // 
             // groupBox4
             // 
@@ -498,14 +498,14 @@
             // 
             // openFileDialog1
             // 
-            openFileDialog1.FileName = "Select a PAK file";
-            openFileDialog1.Filter = "PAK files (*.pak)|*.pak|All files (*.*)|*.*";
+            openFileDialog1.FileName = "Chọn tệp PAK";
+            openFileDialog1.Filter = "Tệp PAK (*.pak)|*.pak|Tất cả tệp (*.*)|*.*";
             openFileDialog1.RestoreDirectory = true;
             // 
             // openFileDialog2
             // 
-            openFileDialog2.FileName = "Select a text file";
-            openFileDialog2.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+            openFileDialog2.FileName = "Chọn tệp văn bản";
+            openFileDialog2.Filter = "Tệp văn bản (*.txt)|*.txt|Tất cả tệp (*.*)|*.*";
             openFileDialog2.RestoreDirectory = true;
             // 
             // MainForm

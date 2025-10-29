@@ -22,7 +22,7 @@ namespace KUnpack
 		// Sorting state for listViewFiles (virtual mode)
 		private int currentSortColumn = -1; // -1 means no sorting
 		private SortOrder currentSortOrder = SortOrder.None;
-		private readonly string[] listViewFilesHeaderTexts = new[] { "#", "ID", "Packed Size", "Original Size", "Compression", "Path" };
+		private readonly string[] listViewFilesHeaderTexts = new[] { "#", "ID", "Kích thước nén", "Kích thước gốc", "Loại nén", "Đường dẫn" };
 		private Dictionary<uint, int> originalIndexById = new Dictionary<uint, int>();
 		private List<int> sortedIndices = new List<int>();
 
@@ -195,11 +195,11 @@ namespace KUnpack
 
                 toolStripStatusLabel1.Text = $"Đã tải {total} file từ {Path.GetFileName(filePath)}";
 
-                // Auto-resize columns
+                // Tự động điều chỉnh độ rộng cột
                 UIHelper.AdjustListViewColumns(listViewFiles);
                 UIHelper.AdjustListViewColumns(listViewInfo);
                 
-                // Update menu state
+                // Cập nhật trạng thái menu
                 UpdateMenuState();
             }
             catch (SecurityException ex)
@@ -220,7 +220,7 @@ namespace KUnpack
                 {
                     string selectedFolder = folderBrowserDialog1.SelectedPath;
                     
-                    // Validate write permissions
+                    // Kiểm tra quyền ghi
                     if (!ValidateFolderWritePermission(selectedFolder))
                     {
                         MessageBox.Show($"Bị từ chối quyền truy cập.\n\nBạn không có quyền ghi vào:\n{selectedFolder}", 
@@ -230,24 +230,24 @@ namespace KUnpack
 
                     outputFolder = selectedFolder;
                     outputnoneToolStripMenuItem.Text = $"Output: {outputFolder}";
-                    LogMessage($"Output folder set to: {outputFolder}");
+                    LogMessage($"Đã đặt thư mục xuất đến: {outputFolder}");
                     UpdateMenuState();
                 }
                 catch (SecurityException ex)
                 {
-                    MessageBox.Show($"Security error.\n\nError message: {ex.Message}\n\n" +
-                    $"Details:\n\n{ex.StackTrace}");
+                    MessageBox.Show($"Lỗi bảo mật.\n\nThông báo lỗi: {ex.Message}\n\n" +
+                    $"Chi tiết:\n\n{ex.StackTrace}");
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error setting output folder.\n\nError message: {ex.Message}", 
-                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Lỗi khi đặt thư mục xuất.\n\nThông báo lỗi: {ex.Message}", 
+                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
         /// <summary>
-        /// Validates if the user has write permission to the folder
+        /// Kiểm tra người dùng có quyền ghi vào thư mục không
         /// </summary>
         private bool ValidateFolderWritePermission(string folderPath)
         {
@@ -276,7 +276,7 @@ namespace KUnpack
                     listnoneToolStripMenuItem.Text = $"List: {Path.GetFileName(listPath)}";
                     
 					// Refresh listview để hiển thị path mới
-					ApplySortingIfAny(); // resort if sorting by Path
+					ApplySortingIfAny(); // sắp xếp lại nếu đang sắp xếp theo Path
 					UpdateSortHeaderTexts();
 					UIHelper.AdjustListViewColumns(listViewFiles);
 					listViewFiles.Invalidate();
@@ -407,7 +407,7 @@ namespace KUnpack
 
             // Đọc dữ liệu file để detect type và hiển thị hex
             byte[]? fileData = null;
-            string detectedType = "Unknown";
+            string detectedType = "Không xác định";
             
             if (currentPack != null)
             {
@@ -450,39 +450,39 @@ namespace KUnpack
             }
 
             // Hiển thị thông tin chi tiết trong listViewInfo
-			listViewInfo.Items.Add(new ListViewItem(new[] { "Index", packIndex.ToString() }));
+			listViewInfo.Items.Add(new ListViewItem(new[] { "Chỉ mục", packIndex.ToString() }));
             listViewInfo.Items.Add(new ListViewItem(new[] { "ID", $"0x{indexInfo.uId:X8}" }));
             
             // Hiển thị path nếu có
             if (idToPathMap.ContainsKey(indexInfo.uId))
             {
-                listViewInfo.Items.Add(new ListViewItem(new[] { "Path", idToPathMap[indexInfo.uId] }));
+                listViewInfo.Items.Add(new ListViewItem(new[] { "Đường dẫn", idToPathMap[indexInfo.uId] }));
             }
             
-            listViewInfo.Items.Add(new ListViewItem(new[] { "Offset", $"0x{indexInfo.uOffset:X8}" }));
+            listViewInfo.Items.Add(new ListViewItem(new[] { "Vị trí", $"0x{indexInfo.uOffset:X8}" }));
             
             int packedSize = unchecked(indexInfo.lCompressSizeFlag & (~(int)XPACK_METHOD.TYPE_FILTER));
-            listViewInfo.Items.Add(new ListViewItem(new[] { "Packed Size", $"{ExtractionHelper.FormatFileSize(packedSize)} ({packedSize} bytes)" }));
-            listViewInfo.Items.Add(new ListViewItem(new[] { "Original Size", $"{ExtractionHelper.FormatFileSize(indexInfo.lSize)} ({indexInfo.lSize} bytes)" }));
+            listViewInfo.Items.Add(new ListViewItem(new[] { "Kích thước nén", $"{ExtractionHelper.FormatFileSize(packedSize)} ({packedSize} byte)" }));
+            listViewInfo.Items.Add(new ListViewItem(new[] { "Kích thước gốc", $"{ExtractionHelper.FormatFileSize(indexInfo.lSize)} ({indexInfo.lSize} byte)" }));
 
             // Xác định phương thức nén
             int compressionMethod = unchecked(indexInfo.lCompressSizeFlag & (int)XPACK_METHOD.TYPE_FILTER);
             string methodStr = ExtractionHelper.GetCompressionMethodName(compressionMethod);
-            listViewInfo.Items.Add(new ListViewItem(new[] { "Compression", methodStr }));
+            listViewInfo.Items.Add(new ListViewItem(new[] { "Phương thức nén", methodStr }));
 
             // Tính tỷ lệ nén
             if (indexInfo.lSize > 0)
             {
                 double ratio = (double)packedSize / indexInfo.lSize * 100.0;
-                listViewInfo.Items.Add(new ListViewItem(new[] { "Compression Ratio", $"{ratio:F2}%" }));
+                listViewInfo.Items.Add(new ListViewItem(new[] { "Tỷ lệ nén", $"{ratio:F2}%" }));
             }
 
             // Hiển thị file type đã detect
-            listViewInfo.Items.Add(new ListViewItem(new[] { "Detected Type", detectedType }));
+            listViewInfo.Items.Add(new ListViewItem(new[] { "Loại file", detectedType }));
 
             UIHelper.AdjustListViewColumns(listViewInfo);
             
-            // Update menu state
+            // Cập nhật trạng thái menu
             UpdateMenuState();
         }
         
@@ -635,7 +635,7 @@ namespace KUnpack
                 toolStripProgressBar1.Maximum = totalCount;
                 toolStripProgressBar1.Value = 0;
 
-                // Run extraction on background thread to avoid UI freeze
+                // Chạy trích xuất trên thread nền để tránh đơ giao diện
                 await Task.Run(() => PerformExtractionBackground(indices, ref successCount, ref failCount));
 
                 LogMessage($"Hoàn tất trích xuất: {successCount} thành công, {failCount} thất bại");
@@ -657,16 +657,16 @@ namespace KUnpack
         }
 
         /// <summary>
-        /// Background extraction logic - runs on thread pool to avoid blocking UI
+        /// Logic trích xuất nền - chạy trên thread pool để tránh chặn giao diện
         /// </summary>
         private void PerformExtractionBackground(List<int> indices, ref int successCount, ref int failCount)
         {
             foreach (int index in indices)
             {
-                // Check pause/cancel state - use Task.Delay instead of Thread.Sleep for async
+                // Kiểm tra trạng thái tạm dừng/hủy
                 while (isPaused && !cancelRequested)
                 {
-                    System.Threading.Thread.Sleep(50);  // Shorter sleep for background thread
+                    System.Threading.Thread.Sleep(50);  // Thời gian ngủ ngắn cho thread nền
                 }
 
                 if (cancelRequested)
@@ -688,7 +688,7 @@ namespace KUnpack
 
                 int processedCount = successCount + failCount;
                 
-                // Update UI on main thread using Invoke
+                // Cập nhật giao diện trên thread chính bằng Invoke
                 this.Invoke(() =>
                 {
                     toolStripProgressBar1.Value = Math.Min(processedCount, toolStripProgressBar1.Maximum);
@@ -764,7 +764,7 @@ namespace KUnpack
             if (data.Length > HexPreviewMaxBytes)
             {
                 sb.AppendLine();
-                sb.AppendLine($"... ({data.Length - HexPreviewMaxBytes} more bytes)");
+                sb.AppendLine($"... (còn thêm {data.Length - HexPreviewMaxBytes} byte)");
             }
 
             richTextBoxHexPreview.Text = sb.ToString();
@@ -1224,15 +1224,15 @@ namespace KUnpack
                     if (parts.Length < 4) // Ít nhất cần Index, ID, Time, FileName
                         continue;
                     
-                    // parts[0] = Index
-                    // parts[1] = ID (hex string)
-                    // parts[2] = Time
-                    // parts[3] = FileName
+                    // parts[0] = Chỉ mục
+                    // parts[1] = ID (chuỗi hex)
+                    // parts[2] = Thời gian
+                    // parts[3] = Tên file
                     
                     string idHexStr = parts[1].Trim();
                     string fileName = parts[3].Trim();
                     
-                    // Convert hex ID to uint
+                    // Chuyển đổi ID hex sang uint
                     if (!uint.TryParse(idHexStr, System.Globalization.NumberStyles.HexNumber, null, out uint id))
                     {
                         LogMessage($"Cảnh báo: Không thể phân tích ID '{idHexStr}' dưới dạng hex ở dòng {i + 1}");
@@ -1448,7 +1448,7 @@ namespace KUnpack
                     string[] parts = trimmedLine.Split('\t');
                     if (parts.Length >= 4)
                     {
-                        // parts[0] = Index, parts[1] = ID (hex), parts[2] = Time, parts[3] = FileName
+                        // parts[0] = Chỉ mục, parts[1] = ID (hex), parts[2] = Thời gian, parts[3] = Tên file
                         string idHexStr = parts[1].Trim();
                         string fileName = parts[3].Trim();
 

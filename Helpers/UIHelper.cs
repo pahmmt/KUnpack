@@ -179,7 +179,7 @@ namespace KUnpack.Helpers
 
             // Menu Extract All
             extractAllMenuItem.Enabled = hasPack && totalFiles > 0;
-            extractAllMenuItem.Text = "Extract All";
+            extractAllMenuItem.Text = "Giải nén tất cả";
 
             // Menu Extract Selected
             extractSelectedMenuItem.Enabled = hasPack && selectedCount > 0;
@@ -187,11 +187,11 @@ namespace KUnpack.Helpers
             // Cập nhật text dựa trên số lượng mục đã chọn
             if (selectedCount > 0)
             {
-                extractSelectedMenuItem.Text = $"Extract {selectedCount} Selected";
+                extractSelectedMenuItem.Text = $"Giải nén {selectedCount} tệp đã chọn";
             }
             else
             {
-                extractSelectedMenuItem.Text = "Extract Selected";
+                extractSelectedMenuItem.Text = "Giải nén tệp đã chọn";
             }
         }
     }
