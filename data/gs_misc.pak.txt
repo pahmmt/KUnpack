@@ -1,0 +1,5 @@
+TotalFile:3	PakTime:2009-1-4 10:29:39	PakTimeSave:49601f13	CRC:5a5aa464
+Index	ID	Time	FileName	Size	InPakSize	ComprFlag	CRC
+0	9b335c4	2007-10-10 10:12:57	\misc\help\help.xml	13502	2144	4	9f9f825e
+1	3dbfc0a0	2008-12-30 16:35:25	\misc\ip.dat	16568536	1520184	2	fb967eea
+2	83ad98f7	2007-9-13 14:31:3	\misc\help\image\0.jpg	2199	2199	0	2bdb311c
